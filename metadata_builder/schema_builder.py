@@ -8,7 +8,7 @@ from metadata_builder.LLM_pydantic import (
     TableMetadata,
     DatabaseSchema
 )
-from functions.llm_service import generate_verbose_descriptions
+from metadata_builder.LLM_service import generate_verbose_descriptions
 
 # Configure logging to make debugging much easier for the team.
 # You can change INFO to DEBUG when you need more granularity.
