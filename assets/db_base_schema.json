@@ -1,0 +1,88 @@
+{
+    "album": {
+        "albumid": "INTEGER",
+        "title": "VARCHAR",
+        "artistid": "INTEGER"
+    },
+    "artist": {
+        "artistid": "INTEGER",
+        "name": "VARCHAR"
+    },
+    "customer": {
+        "customerid": "INTEGER",
+        "firstname": "VARCHAR",
+        "lastname": "VARCHAR",
+        "company": "VARCHAR",
+        "address": "VARCHAR",
+        "city": "VARCHAR",
+        "state": "VARCHAR",
+        "country": "VARCHAR",
+        "postalcode": "VARCHAR",
+        "phone": "VARCHAR",
+        "fax": "VARCHAR",
+        "email": "VARCHAR",
+        "supportrepid": "INTEGER"
+    },
+    "employee": {
+        "employeeid": "INTEGER",
+        "lastname": "VARCHAR",
+        "firstname": "VARCHAR",
+        "title": "VARCHAR",
+        "reportsto": "INTEGER",
+        "birthdate": "DATETIME",
+        "hiredate": "DATETIME",
+        "address": "VARCHAR",
+        "city": "VARCHAR",
+        "state": "VARCHAR",
+        "country": "VARCHAR",
+        "postalcode": "VARCHAR",
+        "phone": "VARCHAR",
+        "fax": "VARCHAR",
+        "email": "VARCHAR"
+    },
+    "genre": {
+        "genreid": "INTEGER",
+        "name": "VARCHAR"
+    },
+    "invoice": {
+        "invoiceid": "INTEGER",
+        "customerid": "INTEGER",
+        "invoicedate": "DATETIME",
+        "billingaddress": "VARCHAR",
+        "billingcity": "VARCHAR",
+        "billingstate": "VARCHAR",
+        "billingcountry": "VARCHAR",
+        "billingpostalcode": "VARCHAR",
+        "total": "DECIMAL"
+    },
+    "invoiceline": {
+        "invoicelineid": "INTEGER",
+        "invoiceid": "INTEGER",
+        "trackid": "INTEGER",
+        "unitprice": "DECIMAL",
+        "quantity": "INTEGER"
+    },
+    "mediatype": {
+        "mediatypeid": "INTEGER",
+        "name": "VARCHAR"
+    },
+    "playlist": {
+        "playlistid": "INTEGER",
+        "name": "VARCHAR"
+    },
+    "playlisttrack": {
+        "playlistid": "INTEGER",
+        "trackid": "INTEGER"
+    },
+    "track": {
+        "trackid": "INTEGER",
+        "name": "VARCHAR",
+        "albumid": "INTEGER",
+        "mediatypeid": "INTEGER",
+        "genreid": "INTEGER",
+        "composer": "VARCHAR",
+        "milliseconds": "INTEGER",
+        "bytes": "INTEGER",
+        "unitprice": "DECIMAL"
+    }
+}

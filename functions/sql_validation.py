@@ -1,103 +1,138 @@
 import json
+import logging
+from typing import Tuple, Optional, List, Dict, Any
+
 import ollama
 from sqlglot import parse_one, exp
 from sqlglot.optimizer.qualify import qualify
 from sqlglot.schema import MappingSchema
 from sqlglot.errors import OptimizeError, ParseError
-from typing import Tuple, Optional
 
-# Sqlglot Validation Function (with the LLM error builder)
-def validate_sql_against_schema(sql_query: str, schema: MappingSchema, dialect: str = "postgres"):
+# Configure standard logging for better debugging and trace generation
+logging.basicConfig(
+    level=logging.INFO, 
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+def _validate_sql(sql_query: str, schema: MappingSchema, dialect: str) -> Tuple[bool, Optional[str]]:
+    """
+    Helper function to validate SQL syntax, security, and schema.
+    Returns a tuple of (is_valid, error_message).
+    """
     try:
         expression = parse_one(sql_query, read=dialect)
         
-        # Strictly enforce SELECT statements
-        unwrapped = expression.this if isinstance(expression, exp.With) else expression
-        if not isinstance(unwrapped, (exp.Select, exp.Union)):
-            raise ValueError("Non-SELECT statement detected. Only read-only SELECT queries are allowed.")
+        # 1. Safety check: Enforce read-only SELECT queries
+        # If the query uses CTEs (WITH), we need to unwrap it to check the main query
+        unwrapped_expr = expression.this if isinstance(expression, exp.With) else expression
+        if not isinstance(unwrapped_expr, (exp.Select, exp.Union)):
+            return False, "Security Policy Violation: Only read-only SELECT statements are allowed."
         
-        # Qualify columns against the schema
+        # 2. Structural check: Validate tables & columns exist in the schema
         qualify(expression, schema=schema)
-        return True, "SQL is valid and matches schema."
         
-    except ParseError as pe:
-        return False, f"Syntax Error: {pe}"
-    except OptimizeError as oe:
-        return False, f"Schema/Validation Error: {oe}"
+        return True, None
+        
+    except (ParseError, OptimizeError, ValueError) as e:
+        return False, f"SQL Validation Error: {str(e)}"
     except Exception as e:
-        return False, f"Error: {e}"
-    
+        logger.error("Unexpected error during SQLGlot validation", exc_info=True)
+        return False, f"System Error during validation: {str(e)}"
+
 def get_validated_sql(
     user_prompt: str, 
     system_prompt: str, 
-    database_schema: MappingSchema,
-    dialect: str = "mysql",
-    llm_model: str = "llama3", # Replace with your actual model
+    database_schema: Dict[str, Any], 
+    dialect: str = "mysql", 
+    llm_model: str = "llama3", 
     max_attempts: int = 3
 ) -> Tuple[Optional[str], str]:
     """
-    Generates a PostgreSQL query using an LLM and validates it against a schema.
-    If validation fails, it loops back to the LLM with error feedback for self-correction.
+    Generates a SQL query using an LLM and validates it against a provided schema.
+    If validation fails, prompts the LLM to self-correct using the error output.
     
     Returns:
-        (extracted_sql, status_message)
-        extracted_sql will be None if all attempts fail.
+        Tuple containing (extracted_sql_string, status_message).
+        If all attempts fail, extracted_sql_string will be None.
     """
-    current_user_prompt = user_prompt
+    current_prompt = user_prompt
+    mapped_schema = MappingSchema(database_schema, dialect=dialect)
 
-    # 3. Begin the Self-Correction Loop
     for attempt in range(1, max_attempts + 1):
-        print(f"🔄 Attempt {attempt}/{max_attempts}: Generating SQL...")
+        logger.info(f"🔄 Attempt {attempt}/{max_attempts}: Generating SQL...")
         
         try:
-            # Call Ollama API
+            # 1. Generate SQL via LLM
             response = ollama.generate(
                 model=llm_model,
                 system=system_prompt,
-                prompt=current_user_prompt,
+                prompt=current_prompt,
                 format="json",
-                options={"temperature": 0.0}  # Keep it deterministic
+                options={"temperature": 0.0}  # Deterministic output
             )
             
-            # Step A: Parse JSON Wrapper
-            raw_output = response['response']
+            # 2. Extract JSON payload
+            raw_output = response.get('response', '')
             parsed_json = json.loads(raw_output)
             extracted_sql = parsed_json.get("sql", "").strip()
             
+            logger.debug(f"LLM Output SQL:\n{extracted_sql}")
+            
             if not extracted_sql:
-                raise ValueError("The JSON object was missing the 'sql' key or it was empty.")
+                raise ValueError("The JSON object was missing the 'sql' key or the query was empty.")
             
-            # Step B: Run through SQLGlot validation
-            # (Inlined validation logic for self-containment)
-            expression = parse_one(extracted_sql, read=dialect)
+            # 3. Validate the extracted SQL using our helper function
+            is_valid, error_message = _validate_sql(extracted_sql, mapped_schema, dialect)
             
-            # Safety check: enforce SELECT queries only
-            unwrapped = expression.this if isinstance(expression, exp.With) else expression
-            if not isinstance(unwrapped, (exp.Select, exp.Union)):
-                raise ValueError("Security Policy Violation: Only read-only SELECT statements are allowed.")
-            
-            # Structural check: validate tables & columns
-            qualify(expression, schema=database_schema)
-            
-            # If we reach this line, it passed everything!
-            print(f"✅ Success on attempt {attempt}!")
-            return extracted_sql, f"Successfully validated after {attempt} attempt(s)."
-            
-        except (json.JSONDecodeError, ParseError, OptimizeError, ValueError, Exception) as e:
-            error_message = str(e)
-            print(f"❌ Attempt {attempt} failed validation: {error_message}")
-            
-            # If we have attempts left, rewrite the prompt with explicit feedback
-            if attempt < max_attempts:
-                current_user_prompt = f"""### Previous Context
-                {user_prompt}
-
-                ### Instruction
-                Your previous SQL generation failed validation constraints. Review the error details below, fix the issue, and regenerate the correct PostgreSQL query. 
-
-                **Error Spotted:** {error_message}
-
-                Provide the corrected response as the requested JSON object below:"""
+            if is_valid:
+                logger.info(f"✅ Success on attempt {attempt}!")
+                return extracted_sql, f"Successfully validated after {attempt} attempt(s)."
             else:
-                # Out of attempts
-                return None, f"Failed to generate valid SQL after {max_attempts} attempts. Last error: {error_message}"
+                # Raise the error so it gets caught and triggers the self-correction loop
+                raise ValueError(error_message)
+                
+        except (json.JSONDecodeError, ValueError) as e:
+            error_details = str(e)
+            logger.warning(f"❌ Attempt {attempt} failed: {error_details}")
+            
+            # Trigger self-correction if we haven't maxed out attempts
+            if attempt < max_attempts:
+                # Dedenting the multiline string avoids injecting unnecessary whitespace into the prompt
+                current_prompt = (
+                    "You have run into an unexpected error.\n\n"
+                    f"Previous Context:\n{user_prompt}\n\n"
+                    f"Your previous SQL generation failed database validation constraints. "
+                    f"You have the following database Schema:\n{database_schema}\n\n"
+                    "Instruction:\n"
+                    "Review the allowed Database Schema above, analyze the specific error details below, "
+                    f"fix the column/syntax mismatch, and regenerate the correct {dialect} query.\n\n"
+                    f"**Error Spotted:** {error_details}\n\n"
+                    "Provide your corrected response as the requested JSON object below:"
+                )
+            else:
+                logger.error(f"Failed to generate valid SQL after {max_attempts} attempts.")
+                return None, f"Failed after {max_attempts} attempts. Last error: {error_details}"
+
+def extract_table_from_sql(sql_query: str) -> List[str]:
+    """
+    Parses a SQL query and extracts actual table names, filtering out temporary CTEs.
+    """
+    try:
+        parsed = parse_one(sql_query)
+
+        # 1. Gather all Common Table Expression (CTE) aliases to exclude them later
+        cte_names = {cte.alias_or_name for cte in parsed.find_all(exp.CTE)}
+
+        # 2. Extract real tables (ignoring our CTE names)
+        real_tables = list({
+            table.name for table in parsed.find_all(exp.Table) 
+            if table.name not in cte_names
+        })
+
+        logger.debug(f"Extracted real tables: {real_tables}")
+        return real_tables
+
+    except Exception as e:
+        logger.error(f"Failed to extract tables from SQL: {e}")
+        return []

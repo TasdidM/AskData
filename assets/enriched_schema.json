@@ -1,0 +1,680 @@
+{
+  "tables": {
+    "album": {
+      "name": "album",
+      "columns": [
+        {
+          "name": "AlbumId",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "A unique identifier assigned to each album, serving as the primary key for this table. This column enables efficient lookup and retrieval of album information.",
+          "synonyms": "album number, music ID"
+        },
+        {
+          "name": "Title",
+          "type": "VARCHAR(160) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": false,
+          "description": "The official title of the album, providing a concise description of the musical content. The use of VARCHAR(160) allows for titles with varying lengths, accommodating diverse album naming conventions.",
+          "synonyms": "music title, record name"
+        },
+        {
+          "name": "ArtistId",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "A foreign key referencing the artist table, establishing a relationship between albums and their respective creators. This column enables querying and analysis of an artist's discography.",
+          "synonyms": "artist number, music creator ID"
+        }
+      ],
+      "primary_key": [
+        "AlbumId"
+      ],
+      "relationships": [
+        {
+          "from_column": [
+            "ArtistId"
+          ],
+          "to_table": "artist",
+          "to_column": [
+            "ArtistId"
+          ]
+        }
+      ],
+      "description": "The album table represents a collection of music recordings, capturing essential information about each album. This table is part of a larger domain focused on managing and tracking musical content.",
+      "synonyms": "music release, record, discography"
+    },
+    "artist": {
+      "name": "artist",
+      "columns": [
+        {
+          "name": "ArtistId",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "A unique identifier assigned to each artist, serving as the primary key for this table. This column is used to establish a one-to-one relationship between artists and their corresponding records.",
+          "synonyms": "artist_code, music_id"
+        },
+        {
+          "name": "Name",
+          "type": "VARCHAR(120) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The name of the artist, which can be up to 120 characters in length. This column allows for varying levels of detail, from a simple first name to a full stage name or band name.",
+          "synonyms": "artist_name, performer_name"
+        }
+      ],
+      "primary_key": [
+        "ArtistId"
+      ],
+      "relationships": [],
+      "description": "The Artist table stores information about individual artists in a music database. This table is used to maintain a comprehensive list of artists, including their unique identifier and name.",
+      "synonyms": "musician, performer, singer, songwriter"
+    },
+    "customer": {
+      "name": "customer",
+      "columns": [
+        {
+          "name": "CustomerId",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "Unique identifier for each customer.",
+          "synonyms": "Customer ID, Client ID"
+        },
+        {
+          "name": "FirstName",
+          "type": "VARCHAR(40) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": false,
+          "description": "The customer's first name.",
+          "synonyms": "Given Name, First Name"
+        },
+        {
+          "name": "LastName",
+          "type": "VARCHAR(20) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": false,
+          "description": "The customer's last name.",
+          "synonyms": "Surname, Family Name"
+        },
+        {
+          "name": "Company",
+          "type": "VARCHAR(80) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The company or organization the customer represents.",
+          "synonyms": "Organization, Firm"
+        },
+        {
+          "name": "Address",
+          "type": "VARCHAR(70) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The physical address of the customer.",
+          "synonyms": "Street Address, Postal Address"
+        },
+        {
+          "name": "City",
+          "type": "VARCHAR(40) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The city where the customer is located.",
+          "synonyms": "Metropolitan Area, Urban Center"
+        },
+        {
+          "name": "State",
+          "type": "VARCHAR(40) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The state or province where the customer is located.",
+          "synonyms": "Region, Province"
+        },
+        {
+          "name": "Country",
+          "type": "VARCHAR(40) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The country where the customer is located.",
+          "synonyms": "Nation, Territory"
+        },
+        {
+          "name": "PostalCode",
+          "type": "VARCHAR(10) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The postal code or zip code for the customer's location.",
+          "synonyms": "Zip Code, Postal Code"
+        },
+        {
+          "name": "Phone",
+          "type": "VARCHAR(24) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The phone number of the customer.",
+          "synonyms": "Contact Number, Telephone Number"
+        },
+        {
+          "name": "Fax",
+          "type": "VARCHAR(24) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The fax number of the customer.",
+          "synonyms": "Facsimile Number, Fax Number"
+        },
+        {
+          "name": "Email",
+          "type": "VARCHAR(60) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": false,
+          "description": "The email address of the customer.",
+          "synonyms": "Electronic Mail Address, Email Address"
+        },
+        {
+          "name": "SupportRepId",
+          "type": "INTEGER",
+          "nullable": true,
+          "description": "The ID of the support representative assigned to the customer.",
+          "synonyms": "Customer Service Representative, Support Agent"
+        }
+      ],
+      "primary_key": [
+        "CustomerId"
+      ],
+      "relationships": [
+        {
+          "from_column": [
+            "SupportRepId"
+          ],
+          "to_table": "employee",
+          "to_column": [
+            "EmployeeId"
+          ]
+        }
+      ],
+      "description": "Customer information table containing details about individual customers.",
+      "synonyms": "Client, Patron, Subscriber, User"
+    },
+    "employee": {
+      "name": "employee",
+      "columns": [
+        {
+          "name": "EmployeeId",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "Unique identifier for each employee.",
+          "synonyms": "employee number, staff ID"
+        },
+        {
+          "name": "LastName",
+          "type": "VARCHAR(20) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": false,
+          "description": "The last name of the employee.",
+          "synonyms": "surname, family name"
+        },
+        {
+          "name": "FirstName",
+          "type": "VARCHAR(20) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": false,
+          "description": "The first name of the employee.",
+          "synonyms": "given name, forename"
+        },
+        {
+          "name": "Title",
+          "type": "VARCHAR(30) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The job title or role held by the employee.",
+          "synonyms": "position, occupation"
+        },
+        {
+          "name": "ReportsTo",
+          "type": "INTEGER",
+          "nullable": true,
+          "description": "The ID of the employee's supervisor or manager.",
+          "synonyms": "manager ID, supervisor ID"
+        },
+        {
+          "name": "BirthDate",
+          "type": "DATETIME",
+          "nullable": true,
+          "description": "The date of birth for each employee.",
+          "synonyms": "birthday"
+        },
+        {
+          "name": "HireDate",
+          "type": "DATETIME",
+          "nullable": true,
+          "description": "The date the employee was hired by Chinook Corporation.",
+          "synonyms": "start date, employment start date"
+        },
+        {
+          "name": "Address",
+          "type": "VARCHAR(70) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The physical address of each employee's workplace or home.",
+          "synonyms": "location, residence"
+        },
+        {
+          "name": "City",
+          "type": "VARCHAR(40) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The city where the employee is based.",
+          "synonyms": "metropolitan area, municipality"
+        },
+        {
+          "name": "State",
+          "type": "VARCHAR(40) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The province or state where the employee is based.",
+          "synonyms": "region, territory"
+        },
+        {
+          "name": "Country",
+          "type": "VARCHAR(40) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The country where the employee is based.",
+          "synonyms": "nation, landmass"
+        },
+        {
+          "name": "PostalCode",
+          "type": "VARCHAR(10) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The postal code for the employee's workplace or home.",
+          "synonyms": "zip code, post code"
+        },
+        {
+          "name": "Phone",
+          "type": "VARCHAR(24) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The phone number of each employee.",
+          "synonyms": "phone number, contact number"
+        },
+        {
+          "name": "Fax",
+          "type": "VARCHAR(24) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The fax number of each employee.",
+          "synonyms": "fax number, transmission number"
+        },
+        {
+          "name": "Email",
+          "type": "VARCHAR(60) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The email address of each employee.",
+          "synonyms": "electronic mail address, e-mail address"
+        }
+      ],
+      "primary_key": [
+        "EmployeeId"
+      ],
+      "relationships": [
+        {
+          "from_column": [
+            "ReportsTo"
+          ],
+          "to_table": "employee",
+          "to_column": [
+            "EmployeeId"
+          ]
+        }
+      ],
+      "description": "This table contains information about employees working at Chinook Corporation.",
+      "synonyms": "staff members, personnel, workers"
+    },
+    "genre": {
+      "name": "genre",
+      "columns": [
+        {
+          "name": "GenreId",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "A unique identifier assigned to each genre, serving as a primary key for referencing and linking related data across the music catalog system. This column enables fast lookup, retrieval, and manipulation of genre-specific information.",
+          "synonyms": "genre code, style ID"
+        },
+        {
+          "name": "Name",
+          "type": "VARCHAR(120) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "A descriptive label representing the name or title of each musical genre. This column captures the essence of the genre, providing a human-readable representation for users to easily identify and navigate the music catalog system.",
+          "synonyms": "genre name, style description"
+        }
+      ],
+      "primary_key": [
+        "GenreId"
+      ],
+      "relationships": [],
+      "description": "The Genre table is a foundational component of the music catalog system, providing a centralized repository for categorizing and identifying various musical genres. This table enables efficient management and retrieval of genre-specific information, facilitating accurate classification and recommendation of songs, artists, and playlists.",
+      "synonyms": "music style, category, type"
+    },
+    "invoice": {
+      "name": "invoice",
+      "columns": [
+        {
+          "name": "InvoiceId",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "A unique identifier for each invoice, used to track and manage transactions.",
+          "synonyms": "invoice number, transaction ID"
+        },
+        {
+          "name": "CustomerId",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "The customer associated with the invoice, linking the transaction to their account.",
+          "synonyms": "customer reference, account ID"
+        },
+        {
+          "name": "InvoiceDate",
+          "type": "DATETIME",
+          "nullable": false,
+          "description": "The date when the invoice was issued or payment was made.",
+          "synonyms": "transaction date, payment date"
+        },
+        {
+          "name": "BillingAddress",
+          "type": "VARCHAR(70) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The customer's billing address, used for shipping and communication purposes.",
+          "synonyms": "shipping address, correspondence address"
+        },
+        {
+          "name": "BillingCity",
+          "type": "VARCHAR(40) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The city where the customer is located, used to determine regional or local taxes.",
+          "synonyms": "city, municipality"
+        },
+        {
+          "name": "BillingState",
+          "type": "VARCHAR(40) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The state or province where the customer is located, used for tax purposes and address validation.",
+          "synonyms": "state, province, region"
+        },
+        {
+          "name": "BillingCountry",
+          "type": "VARCHAR(40) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The country where the customer is located, used to determine international taxes and shipping rates.",
+          "synonyms": "country, nation"
+        },
+        {
+          "name": "BillingPostalCode",
+          "type": "VARCHAR(10) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The postal code or zip code for the customer's billing address, used for shipping and address validation.",
+          "synonyms": "postal code, zip code"
+        },
+        {
+          "name": "Total",
+          "type": "DECIMAL(10, 2)",
+          "nullable": false,
+          "description": "The total amount paid by the customer for the transaction.",
+          "synonyms": "amount due, payment total"
+        }
+      ],
+      "primary_key": [
+        "InvoiceId"
+      ],
+      "relationships": [
+        {
+          "from_column": [
+            "CustomerId"
+          ],
+          "to_table": "customer",
+          "to_column": [
+            "CustomerId"
+          ]
+        }
+      ],
+      "description": "The invoice table stores information about transactions made with customers. It captures details such as the date of the transaction, the customer's billing address, and the total amount paid.",
+      "synonyms": "transaction, purchase order, sales receipt"
+    },
+    "invoiceline": {
+      "name": "invoiceline",
+      "columns": [
+        {
+          "name": "InvoiceLineId",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "A unique identifier for each invoice line item. This primary key ensures that each record is distinct and can be referenced independently.",
+          "synonyms": "line item ID, transaction ID"
+        },
+        {
+          "name": "InvoiceId",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "The foreign key referencing the parent Invoice table, indicating which invoice this line item belongs to.",
+          "synonyms": "invoice reference, order identifier"
+        },
+        {
+          "name": "TrackId",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "The foreign key referencing the Track table, providing context about the specific product or service being invoiced.",
+          "synonyms": "product ID, service identifier"
+        },
+        {
+          "name": "UnitPrice",
+          "type": "DECIMAL(10, 2)",
+          "nullable": false,
+          "description": "The price per unit of the item being invoiced. This value is used to calculate the total cost for each line item.",
+          "synonyms": "price per unit, rate"
+        },
+        {
+          "name": "Quantity",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "The number of units being invoiced for this specific line item.",
+          "synonyms": "quantity ordered, amount"
+        }
+      ],
+      "primary_key": [
+        "InvoiceLineId"
+      ],
+      "relationships": [
+        {
+          "from_column": [
+            "InvoiceId"
+          ],
+          "to_table": "invoice",
+          "to_column": [
+            "InvoiceId"
+          ]
+        },
+        {
+          "from_column": [
+            "TrackId"
+          ],
+          "to_table": "track",
+          "to_column": [
+            "TrackId"
+          ]
+        }
+      ],
+      "description": "This table captures detailed information about individual line items on an invoice.",
+      "synonyms": "invoice item, order detail, transaction record"
+    },
+    "mediatype": {
+      "name": "mediatype",
+      "columns": [
+        {
+          "name": "MediaTypeId",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "A unique identifier assigned to each media type. This column serves as the primary key for the table, allowing for efficient lookups and queries.",
+          "synonyms": "media type ID, file type code"
+        },
+        {
+          "name": "Name",
+          "type": "VARCHAR(120) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The human-readable name of a media type, such as 'Purchased AAC audio file' or 'AAC audio file'. This column provides a descriptive label for each media type, facilitating search and retrieval operations.",
+          "synonyms": "media type description, file type label"
+        }
+      ],
+      "primary_key": [
+        "MediaTypeId"
+      ],
+      "relationships": [],
+      "description": "The Media Type table stores information about different media formats used in a digital library or repository. This table is essential for categorizing and organizing various types of media, such as audio files, videos, images, and documents.",
+      "synonyms": "media format, file type, content type, data format"
+    },
+    "playlist": {
+      "name": "playlist",
+      "columns": [
+        {
+          "name": "PlaylistId",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "A unique identifier assigned to each playlist, serving as a primary key for identifying and referencing the entity. This integer value uniquely distinguishes one playlist from another.",
+          "synonyms": "playlist ID, music library ID"
+        },
+        {
+          "name": "Name",
+          "type": "VARCHAR(120) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The descriptive title or name given to a playlist, providing context about its content, theme, or purpose. The name can be null if the playlist does not have a designated title.",
+          "synonyms": "playlist title, music collection name"
+        }
+      ],
+      "primary_key": [
+        "PlaylistId"
+      ],
+      "relationships": [],
+      "description": "The Playlist table represents a collection of music tracks or audio files organized for playback or streaming. This entity captures metadata about each playlist, including its unique identifier and descriptive name.",
+      "synonyms": "music playlists, audio collections, media libraries"
+    },
+    "playlisttrack": {
+      "name": "playlisttrack",
+      "columns": [
+        {
+          "name": "PlaylistId",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "A unique identifier for a playlist, referencing the corresponding entry in the playlist table. This column represents the parent-child relationship between a playlist and its constituent tracks.",
+          "synonyms": "music list, audio selection"
+        },
+        {
+          "name": "TrackId",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "A unique identifier for a track, referencing the corresponding entry in the track table. This column represents the association of individual songs with their respective playlists.",
+          "synonyms": "song title, audio file"
+        }
+      ],
+      "primary_key": [
+        "PlaylistId",
+        "TrackId"
+      ],
+      "relationships": [
+        {
+          "from_column": [
+            "PlaylistId"
+          ],
+          "to_table": "playlist",
+          "to_column": [
+            "PlaylistId"
+          ]
+        },
+        {
+          "from_column": [
+            "TrackId"
+          ],
+          "to_table": "track",
+          "to_column": [
+            "TrackId"
+          ]
+        }
+      ],
+      "description": "The playlisttrack table serves as a bridge between the playlist and track entities, enabling the association of specific tracks with their respective playlists. This table facilitates the management of music libraries by allowing users to create custom playlists that can contain multiple tracks.",
+      "synonyms": "music library, media catalog, song collection"
+    },
+    "track": {
+      "name": "track",
+      "columns": [
+        {
+          "name": "TrackId",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "Unique identifier for each track.",
+          "synonyms": "Track Number, Music ID"
+        },
+        {
+          "name": "Name",
+          "type": "VARCHAR(200) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": false,
+          "description": "The title of the track.",
+          "synonyms": "Song Title, Track Name"
+        },
+        {
+          "name": "AlbumId",
+          "type": "INTEGER",
+          "nullable": true,
+          "description": "Foreign key referencing the Album table, identifying the album to which this track belongs.",
+          "synonyms": "Album Number, Music Album ID"
+        },
+        {
+          "name": "MediaTypeId",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "Foreign key referencing the MediaType table, indicating the type of media (e.g., CD, digital) for this track.",
+          "synonyms": "Media Type, Format"
+        },
+        {
+          "name": "GenreId",
+          "type": "INTEGER",
+          "nullable": true,
+          "description": "Foreign key referencing the Genre table, categorizing the genre or style of music for this track.",
+          "synonyms": "Music Genre, Style"
+        },
+        {
+          "name": "Composer",
+          "type": "VARCHAR(220) COLLATE \"utf8mb3_general_ci\"",
+          "nullable": true,
+          "description": "The person(s) credited with composing the music for this track.",
+          "synonyms": "Songwriter, Lyricist"
+        },
+        {
+          "name": "Milliseconds",
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "The duration of the track in milliseconds.",
+          "synonyms": "Track Length, Duration"
+        },
+        {
+          "name": "Bytes",
+          "type": "INTEGER",
+          "nullable": true,
+          "description": "The size of the audio file for this track in bytes.",
+          "synonyms": "File Size, Audio Data"
+        },
+        {
+          "name": "UnitPrice",
+          "type": "DECIMAL(10, 2)",
+          "nullable": false,
+          "description": "The price at which this track is sold or licensed.",
+          "synonyms": "Track Price, Licensing Fee"
+        }
+      ],
+      "primary_key": [
+        "TrackId"
+      ],
+      "relationships": [
+        {
+          "from_column": [
+            "AlbumId"
+          ],
+          "to_table": "album",
+          "to_column": [
+            "AlbumId"
+          ]
+        },
+        {
+          "from_column": [
+            "GenreId"
+          ],
+          "to_table": "genre",
+          "to_column": [
+            "GenreId"
+          ]
+        },
+        {
+          "from_column": [
+            "MediaTypeId"
+          ],
+          "to_table": "mediatype",
+          "to_column": [
+            "MediaTypeId"
+          ]
+        }
+      ],
+      "description": "The Track table contains information about individual audio tracks within an album.",
+      "synonyms": "Music Track, Song, Audio Clip"
+    }
+  }
+}

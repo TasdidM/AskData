@@ -1,2 +1,7 @@
 .env
 .venv
+
+draft.ipynb
+
+*.pyc
+__pycache__/
